@@ -1,17 +1,10 @@
 services:
-  - type: web
+  - type: static_site
     name: fest-flutter-app
-    runtime: static
-    plan: free
     buildCommand: bash ./build.sh
     staticPublishPath: ./build/web
-    autoDeploy: true
     envVars:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
-
-# Add the following Render environment variables in the dashboard:
-# SUPABASE_URL=<your_supabase_project_url>
-# SUPABASE_KEY=<your_supabase_anon_or_service_role_key>
