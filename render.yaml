@@ -3,7 +3,6 @@ services:
     name: fest-flutter-app
     runtime: static
     plan: free
-    region: oregon
     buildCommand: bash ./build.sh
     staticPublishPath: ./build/web
     autoDeploy: true
