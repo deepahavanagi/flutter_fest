@@ -31,8 +31,12 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
 /coverage/
+
+# Keep the generated web build for deployment
+!/build/
+!/build/web/
+!/build/web/**
 
 # Local environment and secrets
 .env

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
@@ -73,7 +72,9 @@ class Registration {
       eventTitle: json['event_title'] ?? '',
       eventVenue: json['event_venue'] ?? '',
       eventType: json['event_type'] ?? '',
-      registeredAt: DateTime.parse(json['registered_at'] ?? DateTime.now().toIso8601String()),
+      registeredAt: DateTime.parse(
+        json['registered_at'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 }
@@ -87,10 +88,16 @@ class VoucherTicketService {
   static Future<List<Registration>> fetchEventRegistrations(
     String eventTitle,
   ) async {
-    final supabaseUrl = dotenv.env['SUPABASE_URL'];
-    final supabaseKey = dotenv.env['SUPABASE_KEY'];
+    const supabaseUrl = String.fromEnvironment(
+      'SUPABASE_URL',
+      defaultValue: '',
+    );
+    const supabaseKey = String.fromEnvironment(
+      'SUPABASE_KEY',
+      defaultValue: '',
+    );
 
-    if (supabaseUrl == null || supabaseKey == null) {
+    if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
       throw Exception('Supabase credentials not configured');
     }
 
@@ -116,7 +123,9 @@ class VoucherTicketService {
   }
 
   /// Generate a PDF voucher ticket for a registration
-  static Future<void> generateAndPrintVoucherPDF(Registration registration) async {
+  static Future<void> generateAndPrintVoucherPDF(
+    Registration registration,
+  ) async {
     final pdf = pw.Document();
 
     // Add the voucher ticket page
@@ -126,7 +135,10 @@ class VoucherTicketService {
         build: (pw.Context context) {
           return pw.Container(
             decoration: pw.BoxDecoration(
-              border: pw.Border.all(width: 2, color: PdfColor.fromHex('#3AB7B1')),
+              border: pw.Border.all(
+                width: 2,
+                color: PdfColor.fromHex('#3AB7B1'),
+              ),
               borderRadius: pw.BorderRadius.circular(10),
             ),
             padding: const pw.EdgeInsets.all(20),
@@ -160,10 +172,7 @@ class VoucherTicketService {
                 pw.SizedBox(height: 20),
 
                 // Divider
-                pw.Container(
-                  height: 2,
-                  color: PdfColor.fromHex('#3AB7B1'),
-                ),
+                pw.Container(height: 2, color: PdfColor.fromHex('#3AB7B1')),
                 pw.SizedBox(height: 20),
 
                 // Ticket Details
@@ -202,7 +211,9 @@ class VoucherTicketService {
                         _buildDetailRow('Venue:', registration.eventVenue),
                         _buildDetailRow(
                           'Date:',
-                          DateFormat('dd/MM/yyyy').format(registration.registeredAt),
+                          DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(registration.registeredAt),
                         ),
                         _buildDetailRow(
                           'Time:',
@@ -215,10 +226,7 @@ class VoucherTicketService {
                 pw.SizedBox(height: 20),
 
                 // Divider
-                pw.Container(
-                  height: 2,
-                  color: PdfColor.fromHex('#3AB7B1'),
-                ),
+                pw.Container(height: 2, color: PdfColor.fromHex('#3AB7B1')),
                 pw.SizedBox(height: 20),
 
                 // Footer with ticket ID
@@ -270,10 +278,7 @@ class VoucherTicketService {
           ),
           pw.Container(
             width: 180,
-            child: pw.Text(
-              value,
-              style: const pw.TextStyle(fontSize: 11),
-            ),
+            child: pw.Text(value, style: const pw.TextStyle(fontSize: 11)),
           ),
         ],
       ),
@@ -401,7 +406,6 @@ class CulturalEvent extends FestEvent implements Certifiable {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
 
   runApp(
     const MaterialApp(
@@ -451,7 +455,8 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
     _galleryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
       setState(() {
-        _currentGalleryIndex = (_currentGalleryIndex + 1) % _galleryImages.length;
+        _currentGalleryIndex =
+            (_currentGalleryIndex + 1) % _galleryImages.length;
       });
     });
   }
@@ -500,22 +505,24 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
                     switchInCurve: Curves.easeInOutCubic,
                     switchOutCurve: Curves.easeInOutCubic,
                     transitionBuilder: (child, animation) {
-                      final offsetAnimation = Tween<Offset>(
-                        begin: const Offset(1.0, 0.0),
-                        end: Offset.zero,
-                      ).chain(CurveTween(curve: Curves.easeInOutCubic)).animate(animation);
+                      final offsetAnimation =
+                          Tween<Offset>(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              )
+                              .chain(CurveTween(curve: Curves.easeInOutCubic))
+                              .animate(animation);
 
                       return SlideTransition(
                         position: offsetAnimation,
-                        child: FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
+                        child: FadeTransition(opacity: animation, child: child),
                       );
                     },
                     child: Image.asset(
                       _galleryImages[_currentGalleryIndex],
-                      key: ValueKey<String>(_galleryImages[_currentGalleryIndex]),
+                      key: ValueKey<String>(
+                        _galleryImages[_currentGalleryIndex],
+                      ),
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -577,12 +584,17 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 16),
-              Text('Email: fest@klehaveri.edu.in',
-                  style: TextStyle(fontSize: 16)),
+              Text(
+                'Email: fest@klehaveri.edu.in',
+                style: TextStyle(fontSize: 16),
+              ),
               SizedBox(height: 8),
               Text('Phone: +91 98765 43210', style: TextStyle(fontSize: 16)),
               SizedBox(height: 8),
-              Text('Venue: KLE Haveri BCA Campus', style: TextStyle(fontSize: 16)),
+              Text(
+                'Venue: KLE Haveri BCA Campus',
+                style: TextStyle(fontSize: 16),
+              ),
             ],
           ),
         );
@@ -606,10 +618,7 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          Text(
-            content,
-            style: const TextStyle(fontSize: 16, height: 1.5),
-          ),
+          Text(content, style: const TextStyle(fontSize: 16, height: 1.5)),
           if (extraWidget != null) extraWidget,
         ],
       ),
@@ -619,10 +628,7 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
   Widget _buildGalleryCard(String imagePath) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-      ),
+      child: Image.asset(imagePath, fit: BoxFit.cover),
     );
   }
 
@@ -630,7 +636,8 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
     const locationUrl = 'https://maps.google.com/?q=KLE+Haveri+BCA+College';
     final totalParticipants = _festEvents.fold<int>(
       0,
-      (sum, event) => sum + (event is TechnicalEvent ? event.registrationsCount : 0),
+      (sum, event) =>
+          sum + (event is TechnicalEvent ? event.registrationsCount : 0),
     );
 
     return Center(
@@ -758,12 +765,10 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
                 });
               },
               style: TextButton.styleFrom(
-                foregroundColor:
-                    _selectedNavIndex == index
+                foregroundColor: _selectedNavIndex == index
                     ? Colors.white
                     : const Color.fromARGB(255, 14, 13, 13),
-                backgroundColor:
-                    _selectedNavIndex == index
+                backgroundColor: _selectedNavIndex == index
                     ? const Color.fromARGB(255, 23, 112, 108)
                     : Colors.transparent,
                 shape: RoundedRectangleBorder(
@@ -1037,10 +1042,16 @@ class _CollegeFestDashboardState extends State<CollegeFestDashboard> {
     required String collegeName,
     required String emailAddress,
   }) async {
-    final supabaseUrl = dotenv.env['SUPABASE_URL'];
-    final supabaseKey = dotenv.env['SUPABASE_KEY'];
+    const supabaseUrl = String.fromEnvironment(
+      'SUPABASE_URL',
+      defaultValue: '',
+    );
+    const supabaseKey = String.fromEnvironment(
+      'SUPABASE_KEY',
+      defaultValue: '',
+    );
 
-    if (supabaseUrl == null || supabaseKey == null) {
+    if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -1089,9 +1100,7 @@ class AppFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 56,
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 58, 183, 177),
-      ),
+      decoration: const BoxDecoration(color: Color.fromARGB(255, 58, 183, 177)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -1236,7 +1245,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                       (widget.event as Certifiable).offersCertificate) ...[
                     const Text(
                       'Voucher Tickets',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     FutureBuilder<List<Registration>>(
@@ -1327,13 +1339,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                     ElevatedButton.icon(
                                       onPressed: () async {
                                         try {
-                                          await VoucherTicketService
-                                              .generateAndPrintVoucherPDF(
+                                          await VoucherTicketService.generateAndPrintVoucherPDF(
                                             registration,
                                           );
                                           if (mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               const SnackBar(
                                                 content: Text(
                                                   'Voucher ticket generated successfully!',
@@ -1343,8 +1355,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                           }
                                         } catch (e) {
                                           if (mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
                                                   'Error generating voucher: $e',
@@ -1354,12 +1367,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                           }
                                         }
                                       },
-                                      icon:
-                                          const Icon(Icons.card_giftcard, size: 16),
+                                      icon: const Icon(
+                                        Icons.card_giftcard,
+                                        size: 16,
+                                      ),
                                       label: const Text('Download Voucher'),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color.fromARGB(255, 58, 183, 177),
+                                        backgroundColor: const Color.fromARGB(
+                                          255,
+                                          58,
+                                          183,
+                                          177,
+                                        ),
                                         foregroundColor: Colors.white,
                                       ),
                                     ),

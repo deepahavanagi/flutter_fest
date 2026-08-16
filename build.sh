@@ -11,14 +11,9 @@ export PATH="$HOME/flutter/bin:$HOME/flutter/bin/cache/dart-sdk/bin:$PATH"
 flutter --version
 flutter precache --web
 
-if [ -n "${SUPABASE_URL:-}" ] || [ -n "${SUPABASE_KEY:-}" ]; then
-  printf 'SUPABASE_URL=%s\nSUPABASE_KEY=%s\n' "${SUPABASE_URL:-}" "${SUPABASE_KEY:-}" > .env
-else
-  echo "No Render env vars found. Creating empty .env file."
-  : > .env
-fi
-
 flutter pub get
-flutter build web --release
+flutter build web --release \
+  --dart-define=SUPABASE_URL="${SUPABASE_URL:-}" \
+  --dart-define=SUPABASE_KEY="${SUPABASE_KEY:-}"
 
 echo "Build completed successfully."
